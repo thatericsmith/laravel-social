@@ -48,14 +48,14 @@ class SocialController extends Controller
 		}
 		
 		if (Auth::check()) {
-			return Redirect::to(Session::pull('mmanos.social.onsuccess', '/'));
+			return Redirect::to(Session::get('mmanos.social.onsuccess', '/'));
 		}
 		
 		Session::forget('mmanos.social.pending');
 		Session::forget('mmanos.social.failed_fields');
 		
 		if (Input::get('denied') || Input::get('error')) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (1).'
@@ -96,7 +96,7 @@ class SocialController extends Controller
 			try {
 				$token = $service->requestAccessToken($code);
 			} catch (Exception $e) {
-				return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+				return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 					->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem logging in to your account (2).'
@@ -132,7 +132,7 @@ class SocialController extends Controller
 					$service->getStorage()->retrieveAccessToken($provider)->getRequestTokenSecret()
 				);
 			} catch (Exception $e) {
-				return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+				return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 					->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem logging in to your account (3).'
@@ -152,7 +152,7 @@ class SocialController extends Controller
 			// Extra request needed for oauth1 to get a request token.
 			$token = $service->requestRequestToken();
 		} catch (Exception $e) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem logging in to your account (4).'
@@ -180,7 +180,7 @@ class SocialController extends Controller
 		);
 		
 		if (empty($user_info_callback) || !$user_info_callback instanceof Closure) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (5).'
@@ -192,7 +192,7 @@ class SocialController extends Controller
 		} catch (Exception $e) {}
 		
 		if (empty($user_info) || !is_array($user_info)) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (6).'
@@ -200,7 +200,7 @@ class SocialController extends Controller
 		}
 		
 		if (empty($user_info['id'])) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (7).'
@@ -215,7 +215,7 @@ class SocialController extends Controller
 		
 		if ($user_provider) {
 			Auth::loginUsingId($user_provider->user_id);
-			return Redirect::to(Session::pull('mmanos.social.onsuccess', '/'));
+			return Redirect::to(Session::get('mmanos.social.onsuccess', '/'));
 		}
 		
 		if ($user_validation = Config::get('laravel-social::user_validation')) {
@@ -242,7 +242,7 @@ class SocialController extends Controller
 		
 		$create_user_callback = Config::get('laravel-social::create_user');
 		if (empty($create_user_callback) || !$create_user_callback instanceof Closure) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (8).'
@@ -251,7 +251,7 @@ class SocialController extends Controller
 		
 		$user_id = $create_user_callback($user_info);
 		if (!$user_id || !is_numeric($user_id) || $user_id <= 0) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (9).'
@@ -261,7 +261,7 @@ class SocialController extends Controller
 		$this->linkProvider($user_id, $provider, $provider_id, $access_token);
 		
 		Auth::loginUsingId($user_id);
-		return Redirect::to(Session::pull('mmanos.social.onsuccess', '/'));
+		return Redirect::to(Session::get('mmanos.social.onsuccess', '/'));
 	}
 	
 	/**
@@ -273,7 +273,7 @@ class SocialController extends Controller
 	{
 		$user_data = Session::get('mmanos.social.pending');
 		if (empty($user_data) || !is_array($user_data)) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (10).'
@@ -282,7 +282,7 @@ class SocialController extends Controller
 		
 		$failed_fields = Session::get('mmanos.social.failed_fields');
 		if (empty($failed_fields) || !is_array($failed_fields)) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (11).'
@@ -304,7 +304,7 @@ class SocialController extends Controller
 	{
 		$user_data = Session::get('mmanos.social.pending');
 		if (empty($user_data) || !is_array($user_data)) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (12).'
@@ -329,7 +329,7 @@ class SocialController extends Controller
 		
 		$create_user_callback = Config::get('laravel-social::create_user');
 		if (empty($create_user_callback) || !$create_user_callback instanceof Closure) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (13).'
@@ -338,7 +338,7 @@ class SocialController extends Controller
 		
 		$user_id = $create_user_callback($user_info);
 		if (!$user_id || !is_numeric($user_id) || $user_id <= 0) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem logging in to your account (14).'
@@ -355,7 +355,7 @@ class SocialController extends Controller
 		Session::forget('mmanos.social.failed_fields');
 		
 		Auth::loginUsingId($user_id);
-		return Redirect::to(Session::pull('mmanos.social.onsuccess', '/'));
+		return Redirect::to(Session::get('mmanos.social.onsuccess', '/'));
 	}
 	
 	/**
@@ -384,7 +384,7 @@ class SocialController extends Controller
 		}
 		
 		if (!Auth::check()) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem connecting your account (1).'
@@ -392,7 +392,7 @@ class SocialController extends Controller
 		}
 		
 		if (Input::get('denied') || Input::get('error')) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem connecting your account (2).'
@@ -433,7 +433,7 @@ class SocialController extends Controller
 			try {
 				$token = $service->requestAccessToken($code);
 			} catch (Exception $e) {
-				return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+				return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 					->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem connecting your account (3).'
@@ -466,7 +466,7 @@ class SocialController extends Controller
 					$service->getStorage()->retrieveAccessToken($provider)->getRequestTokenSecret()
 				);
 			} catch (Exception $e) {
-				return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+				return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 					->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem connecting your account (4).'
@@ -483,7 +483,7 @@ class SocialController extends Controller
 			// Extra request needed for oauth1 to get a request token.
 			$token = $service->requestRequestToken();
 		} catch (Exception $e) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem connecting your account (5).'
@@ -511,7 +511,7 @@ class SocialController extends Controller
 		);
 		
 		if (empty($user_info_callback) || !$user_info_callback instanceof Closure) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem connecting your account (6).'
@@ -523,7 +523,7 @@ class SocialController extends Controller
 		} catch (Exception $e) {}
 		
 		if (empty($user_info) || !is_array($user_info)) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem connecting your account (7).'
@@ -531,7 +531,7 @@ class SocialController extends Controller
 		}
 		
 		if (empty($user_info['id'])) {
-			return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+			return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 				->with(
 					Config::get('laravel-social::error_flash_var'),
 					'There was a problem connecting your account (8).'
@@ -546,7 +546,7 @@ class SocialController extends Controller
 		
 		if ($user_provider) {
 			if ($user_provider->user_id != Auth::id()) {
-				return Redirect::to(Session::pull('mmanos.social.onerror', '/'))
+				return Redirect::to(Session::get('mmanos.social.onerror', '/'))
 					->with(
 						Config::get('laravel-social::error_flash_var'),
 						'There was a problem connecting your account (9).'
@@ -560,7 +560,7 @@ class SocialController extends Controller
 			$this->linkProvider(Auth::id(), $provider, $provider_id, $access_token);
 		}
 		
-		return Redirect::to(Session::pull('mmanos.social.onsuccess', '/'))
+		return Redirect::to(Session::get('mmanos.social.onsuccess', '/'))
 			->with(
 				Config::get('laravel-social::success_flash_var'),
 				'You have successfully connected your account.'
